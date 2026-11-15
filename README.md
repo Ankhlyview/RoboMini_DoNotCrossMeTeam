@@ -1,8 +1,7 @@
 # RoboMini_DoNotCrossMeTeam
 
-RoboMini 项目组的**进度协作仓库**。5 名成员各自在 `members/` 下拥有独立文件夹，每天把自己的进展写成 Markdown 提交上来，负责人通过提交历史和看板掌握整体进度。
 
-> **核心原则：一人一目录，一天一文件。** 只要只动自己的目录，就几乎不会产生冲突。
+> **核心原则：** 只要只动自己的目录，就几乎不会产生冲突。
 
 ---
 
@@ -24,12 +23,14 @@ RoboMini_DoNotCrossMeTeam/
    ├─ Machinery_H/           # 机械（H）
    └─ Machinery_Z/           # 机械（Z）
 ```
-
-团队约定：**进度文件只放在自己的 `logs/` 下**，文件名用日期 `YYYY-MM-DD.md`；方案、图纸、代码放自己目录下的 `docs/`、`src/`。
+---
+**约定：只在自己的对应的文件夹下修改，提交的时候请提交原工程和示例(图片之类的)**
 
 ---
 
 ## 一、第一次使用：从零到第一次提交
+
+### 第 0 步：注册Github
 
 ### 第 1 步：接受邀请（否则打不开仓库）
 
@@ -37,7 +38,7 @@ RoboMini_DoNotCrossMeTeam/
 
 你会收到一封邮件，点 **Accept invitation**。没接受之前，私有仓库的链接对你是 404，不是仓库不存在。
 
-### 第 2 步：安装 Git
+### 第 2 步：安装 Git(安装过请忽略这步)
 
 Windows（在 PowerShell 里执行）：
 
@@ -76,9 +77,11 @@ cd RoboMini_DoNotCrossMeTeam
 ```
 
 `git status` 显示 `On branch main` 和 `nothing to commit, working tree clean` 就成功了。
+一般来讲克隆之后，你的本地就会有一个上述目录的结构，以后就在自己的对应文件夹里修改和上传。
 
 ### 第 5 步：第一次提交
 
+以我自己为例，别人请修改Algorithm_A为自己的
 ```bash
 git pull --rebase
 # 新建 members/Algorithm_A/logs/2026-11-15.md，随便写两句即可
@@ -99,9 +102,8 @@ git push
 cd D:\你的工作目录\RoboMini_DoNotCrossMeTeam
 
 git pull --rebase        # 1. 先拉别人的提交
-# 2. 新建 members/你的文件夹/logs/2026-11-15.md，写今天做了什么
 git status               # 3. 看一眼改了哪些文件
-git add "members/你的文件夹/logs/2026-11-15.md"   # 4. 只暂存自己的文件
+git add "members/你的文件夹/"   # 4. 只暂存自己的文件
 git commit -m "progress(你的文件夹): 2026-11-15 一句话摘要"
 git push                 # 5. 推上 GitHub
 ```
@@ -115,27 +117,7 @@ git push                 # 5. 推上 GitHub
 | `git push` | 上传到 GitHub，别人才能看到 |
 | `git pull --rebase` | 先把别人的提交同步下来，再叠上你的 |
 
-### 日报写什么
 
-复制 `templates/daily.md` 的骨架，或直接照这个写：
-
-```markdown
-# 2026-11-15
-
-## 今天完成
-- 完成相机标定脚本，误差 0.8 px
-
-## 遇到的问题
-- 标定板反光，夜间识别率下降
-
-## 明天计划
-- 换哑光标定板复测；补 3 组数据
-
-## 相关链接
-- PR #12 / 提交 abc1234 / 数据在网盘 xxx
-```
-
-同一天要补内容，就改这个文件再提交一次，**不要**新建 `2026-11-15-2.md`。
 
 ---
 
@@ -246,21 +228,9 @@ PR 的好处：改动有记录、可以评论、可以整批回退。小改动�
 
 最后一条会生成一条「反向提交」，历史保留，安全。
 
----
 
-## 八、每周节奏
 
-| 时间 | 动作 |
-| --- | --- |
-| 周一 | 在自己 `logs/` 里写下本周目标 |
-| 周三 | 中期同步，有阻塞当天记录 |
-| 周五 | 复制 `templates/weekly.md` 写周报，负责人汇总到 Issue 或 Projects |
-
-**负责人每周额外做 10 分钟**：扫一遍提交记录看谁没提交 → 更新下面的分工表 → 处理 PR → 里程碑打 tag（`git tag v0.1 && git push --tags`）。
-
----
-
-## 九、成员与分工
+## 八、成员与分工
 
 | 文件夹 | 成员 | 负责模块 | 进度 |
 | --- | --- | --- | --- |
