@@ -1,0 +1,14 @@
+# 目录归属：给对应目录指定负责人，PR 会自动请求他 Review。
+# 语法：路径  @GitHub用户名
+# 把用户名换成真实的 GitHub 账号，并删掉行首的 # 生效。
+# 未生效时保持注释，避免 GitHub 报 "invalid owner"。
+
+# members/Algorithm_A/           @github-username
+# members/ElectricBrazing_Z/     @github-username
+# members/ElectronicSoftware_L/  @github-username
+# members/Machinery_H/           @github-username
+# members/Machinery_Z/           @github-username
+
+# 公共文件由仓库主统一把关
+# /README.md        @your-github-name
+# /CONTRIBUTING.md  @your-github-name

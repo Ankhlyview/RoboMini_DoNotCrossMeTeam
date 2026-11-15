@@ -1,0 +1,19 @@
+* text=auto
+
+# 文本
+*.md   text
+*.txt  text
+*.json text
+*.yml  text
+*.yaml text
+
+# 二进制（禁止换行符转换）
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.pdf  binary
+*.docx binary
+*.xlsx binary
+*.pptx binary
+*.zip  binary

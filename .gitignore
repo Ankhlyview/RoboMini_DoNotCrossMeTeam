@@ -1,0 +1,31 @@
+# 操作系统
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# 编辑器
+.vscode/
+.idea/
+*.swp
+
+# 临时文件
+*.tmp
+*.temp
+~$*
+*.bak
+
+# 依赖与构建产物
+node_modules/
+__pycache__/
+*.pyc
+dist/
+build/
+
+# 大文件（如确需版本管理，请改用 Git LFS：git lfs track "*.zip"）
+*.zip
+*.7z
+*.rar
+*.exe
+*.mp4
+*.mov
+*.psd
