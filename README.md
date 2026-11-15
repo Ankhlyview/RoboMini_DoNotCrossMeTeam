@@ -7,6 +7,7 @@
 ```
 RoboMini_DoNotCrossMeTeam/
 ├─ README.md              # 本文件：仓库说明与总览
+├─ GUIDE.md               # 提交操作指南（第一次用 Git 就看这个）
 ├─ CONTRIBUTING.md        # 提交规范（新人先读这个）
 ├─ .gitattributes         # 换行符 / 二进制文件规则
 ├─ .gitignore             # 忽略临时文件和大文件
@@ -46,7 +47,7 @@ git commit -m "progress(你的名字): 2026-11-15 今日进度"
 git push
 ```
 
-详细规则、分支与 PR 流程见 [CONTRIBUTING.md](CONTRIBUTING.md)。
+详细规则、分支与 PR 流程见 [CONTRIBUTING.md](CONTRIBUTING.md)。第一次用 Git 的成员请先照 [GUIDE.md](GUIDE.md) 一步步做。
 
 ## 三条硬规则
 
