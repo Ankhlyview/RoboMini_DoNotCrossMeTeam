@@ -5,7 +5,7 @@
 ## 目录结构
 
 ```
-team-progress/
+RoboMini_DoNotCrossMeTeam/
 ├─ README.md              # 本文件：仓库说明与总览
 ├─ CONTRIBUTING.md        # 提交规范（新人先读这个）
 ├─ .gitattributes         # 换行符 / 二进制文件规则
@@ -32,8 +32,8 @@ team-progress/
 ## 每个人的日常流程
 
 ```bash
-git clone https://github.com/<你的用户名>/team-progress.git
-cd team-progress
+git clone https://github.com/Ankhlyview/RoboMini_DoNotCrossMeTeam.git
+cd RoboMini_DoNotCrossMeTeam
 ```
 
 之后每次提交进度：

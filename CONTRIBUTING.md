@@ -14,8 +14,8 @@ git config --global core.quotepath false   # Windows 下正常显示中文文件
 ## 1. 克隆
 
 ```bash
-git clone https://github.com/<仓库所有者>/team-progress.git
-cd team-progress
+git clone https://github.com/Ankhlyview/RoboMini_DoNotCrossMeTeam.git
+cd RoboMini_DoNotCrossMeTeam
 ```
 
 ## 2. 每天提交进度
@@ -100,6 +100,6 @@ git rebase --continue
 
 ## 9. 查看进度
 
-- 仓库首页的提交历史：`https://github.com/<所有者>/team-progress/commits/main`
+- 仓库首页的提交历史：`https://github.com/Ankhlyview/RoboMini_DoNotCrossMeTeam/commits/main`
 - 按人筛选：`git log --author="你的名字" --oneline`
 - 图形化：`git log --graph --oneline --all`
