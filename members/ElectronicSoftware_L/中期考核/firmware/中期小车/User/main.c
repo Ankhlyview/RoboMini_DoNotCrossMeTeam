@@ -14,7 +14,6 @@ int main(void)
 	Motor_Init();		//直流电机初始化
 	Key_Init();			//按键初始化
 	
-	/*显示静态字符串*/
 	OLED_ShowString(1, 1, "Speed:");		//1行1列显示字符串Speed:
 	
 	while (1)
