@@ -1,60 +1,33 @@
 # RoboMini_DoNotCrossMeTeam
 
 
-> **核心原则：** 只要只动自己的目录，就几乎不会产生冲突。
-
 ---
 
-## 目录结构
+## 目录结构(重中之重)
 
 ```
 RoboMini_DoNotCrossMeTeam/
 ├─ README.md                 # 本文件：使用说明，先读完这一份
-├─ templates/
+├─ templates/                # 可以忽略
 │  ├─ daily.md               # 日报模板
 │  └─ weekly.md              # 周报模板
 ├─ .github/CODEOWNERS        # 目录归属（可选，用于自动请求 Review）
-└─ members/
+└─ members/                  # 每个人的文件夹下放置自己的代码就好，不要改动别人的文件夹(文件夹中带有一个logs的电东西，可以用来写日志)
    ├─ Algorithm_A/           # 算法
-   │  ├─ README.md           # 我是谁、负责什么、进度索引
-   │  └─ logs/               # 每天一个文件
    ├─ ElectricBrazing_Z/     # 电硬
    ├─ ElectronicSoftware_L/  # 电软
    ├─ Machinery_H/           # 机械（H）
    └─ Machinery_Z/           # 机械（Z）
 ```
----
-**约定：只在自己的对应的文件夹下修改，提交的时候请提交原工程和示例(图片之类的)**
+
+**重中之重×2：只在自己的对应的文件夹下修改，提交的时候请提交原工程和示例(图片之类的)**
 
 ---
 
-## 一、第一次使用：从零到第一次提交
-
-### 第 0 步：注册Github
-
-### 第 1 步：接受邀请（否则打不开仓库）
-
-让仓库负责人操作：仓库 → **Settings** → **Collaborators and teams** → **Add people** → 输入你的 GitHub 用户名。
-
-你会收到一封邮件，点 **Accept invitation**。没接受之前，私有仓库的链接对你是 404，不是仓库不存在。
-
-### 第 2 步：安装 Git(安装过请忽略这步)
-
-Windows（在 PowerShell 里执行）：
-
-```powershell
-winget install --id Git.Git -e
-```
-
-macOS：`brew install git`；或到 <https://git-scm.com/downloads> 下载安装。
-
-装完**重开一个终端**，验证：
-
-```bash
-git --version
-```
-
-### 第 3 步：配置身份（只做一次，全局生效）
+## 一.使用GitHub
+### 1. 安装git，注册GitHub，登录GitHub(能做到这里我觉得也不用提了)
+### 2. 接受成为协作者的邀请
+### 3. 配置身份（只做一次）
 
 ```bash
 git config --global user.name "张三"
@@ -67,141 +40,59 @@ git config --global pull.rebase true
 - `user.email`：用 GitHub 绑定的邮箱。
 - `core.quotepath false`：Windows 下正常显示中文文件名。
 - `pull.rebase true`：以后 `git pull` 自动变基，不产生多余的 merge 提交。
-
-### 第 4 步：克隆到本地（只做一次）
+###  4. 克隆到本地（只做一次）
 
 ```bash
-cd D:\你的工作目录
+cd D:\你的工作目录  #(不同操作系统按照自己的来)
 git clone https://github.com/Ankhlyview/RoboMini_DoNotCrossMeTeam.git
 cd RoboMini_DoNotCrossMeTeam
 ```
-
-`git status` 显示 `On branch main` 和 `nothing to commit, working tree clean` 就成功了。
 一般来讲克隆之后，你的本地就会有一个上述目录的结构，以后就在自己的对应文件夹里修改和上传。
-
-### 第 5 步：第一次提交
-
-以我自己为例，别人请修改Algorithm_A为自己的
+### 5. 每次提交的时候
+以我自己为例，别人请修改Algorithm_A对应自己的文件夹
+加入我在members/Algorithm_A/中修改了文件，想要重新提交这个文件夹中的所有内容，就依次在命令行中，输入指令就行。
 ```bash
 git pull --rebase
-# 新建 members/Algorithm_A/logs/2026-11-15.md，随便写两句即可
-git add "members/Algorithm_A/logs/2026-11-15.md"
-git commit -m "progress(Algorithm_A): 2026-11-15 第一天，读完使用说明"
+git add "members/Algorithm_A/"
+git commit -m "一句提交附带的话"
 git push
 ```
+
+`git status` 显示 `On branch main` 和 `nothing to commit, working tree clean` 就成功了。
 
 第一次 `push` 会弹出浏览器窗口让你登录 GitHub，授权即可（Git 自带凭据管理器，登录一次后长期有效）。
 
 **如果终端提示输入密码**：GitHub 早已不支持账号密码，不要输。改用浏览器授权；实在弹不出窗口，就去 GitHub → Settings → Developer settings → **Personal access tokens (classic)** 生成 token，勾选 `repo`，把 token 当密码粘贴。
 
----
-
-## 二、每天怎么提交
-
-```bash
-cd D:\你的工作目录\RoboMini_DoNotCrossMeTeam
-
-git pull --rebase        # 1. 先拉别人的提交
-git status               # 3. 看一眼改了哪些文件
-git add "members/你的文件夹/"   # 4. 只暂存自己的文件
-git commit -m "progress(你的文件夹): 2026-11-15 一句话摘要"
-git push                 # 5. 推上 GitHub
-```
-
-四个动作的分工，别混：
-
-| 命令 | 作用 |
-| --- | --- |
-| `git add` | 决定「这次提交包含哪些改动」 |
-| `git commit` | 把暂存区打包成一个提交，并写说明 |
-| `git push` | 上传到 GitHub，别人才能看到 |
-| `git pull --rebase` | 先把别人的提交同步下来，再叠上你的 |
-
 
 
 ---
 
-## 三、不想敲命令：直接在网页上提交
 
-GitHub 网页本身就能编辑，适合只补一条记录、身边没装 Git 的情况。
+## 二、成员与分工
 
-**新建日报**：仓库首页 → 进入 `members/你的文件夹/logs/` → 右上角 **Add file** → **Create new file** → 文件名填 `2026-11-15.md` → 写内容 → 底部 **Commit changes** → 直接提交到 `main`。
+| 文件夹 | 成员 | 负责模块 |  
+| --- | --- | --- | 
+| [Algorithm_A](members/Algorithm_A/) | 安 | 算法 | 
+| [ElectricBrazing_Z](members/ElectricBrazing_Z/) | 周 | 电硬 |
+| [ElectronicSoftware_L](members/ElectronicSoftware_L/) | 李 | 电软 | 
+| [Machinery_H](members/Machinery_H/) | 黄 | 机械（H） | 
+| [Machinery_Z](members/Machinery_Z/) | 周 | 机械（Z） |
 
-**修改已有文件**：打开文件 → 右上角铅笔图标 → 编辑 → **Commit changes**。
-
-**新建文件夹**：在文件名里连路径一起写，例如 `members/Algorithm_A/docs/方案.md`，GitHub 会自动建目录。
-
-优点：零安装、手机上也能用。缺点：一次只能改一个文件、没有本地预览。**日常仍推荐命令行，临时补记录用网页。**
-
----
-
-## 四、提交信息怎么写
-
-格式：
-
-```
-类型(文件夹): 日期 一句话摘要
-```
-
-| 类型 | 用在什么时候 |
-| --- | --- |
-| `progress` | 日常进度、日报 |
-| `feat` | 新增功能、文档、图纸 |
-| `fix` | 修复问题 |
-| `docs` | 改说明、改模板 |
-
-例子：
-
-```
-progress(Algorithm_A): 2026-11-15 标定误差降到 0.8px
-feat(Machinery_H): 底盘装配图 v2
-fix(ElectronicSoftware_L): 修复串口断连
-docs: 更新 README 的提交说明
-```
-
-括号里只是**标签**，不是路径，Git 不会解析它；写成文件夹名是为了能按人筛选：
-
-```bash
-git log --oneline --grep="Algorithm_A"    # 只看自己的提交
-git log --oneline -10                     # 看最近 10 条
-```
 
 ---
 
-## 五、什么时候用分支和 PR
-
-| 情况 | 做法 |
-| --- | --- |
-| 只改自己 `members/你的文件夹/` 里的文件 | 直接推 `main`，不用想 |
-| 改 `README.md`、`templates/`、`.gitignore` 等公共文件 | 开分支 → PR → 自己合并，留个痕迹 |
-| 大重构、实验性方案、可能被推翻的代码 | 开分支 `exp/你的文件夹-日期`，成了再合 |
-
-```bash
-git checkout -b docs/readme-update
-# 改文件
-git add README.md
-git commit -m "docs: 补充成员分工表"
-git push -u origin docs/readme-update
-```
-
-然后在网页上点 **Compare & pull request** → 填标题 → **Create pull request** → **Merge pull request**。
-
-PR 的好处：改动有记录、可以评论、可以整批回退。小改动不必走，大改动值得走。
-
----
-
-## 六、六条硬规矩
+## 三、注意事项
 
 1. **只改自己的目录**：`members/你的文件夹/` 之外的文件不要动。
-2. **一天一个文件**：`logs/2026-11-15.md`，不要所有人共用一个 `进度.md`。
-3. **不用 `git add .`**：它会把你本地的临时文件、编译产物一起提交。始终写具体路径。
-4. **大文件不进 Git**：视频、安装包、超过 50 MB 的设计稿放网盘或 GitHub Release，仓库里只放链接。
-5. **不放密码和密钥**：一旦推上去就等于公开，删掉也留在历史里。
-6. **不用 `git push -f`**：会覆盖别人的提交。push 被拒时先 `git pull --rebase`。
+2. **不用 `git add .`**：它会把你本地的临时文件、编译产物一起提交。始终写具体路径。
+3. **大文件不进 Git**：视频、安装包、超过 50 MB 的设计稿放网盘或 GitHub Release，仓库里只放链接。
+4. **不放密码和密钥**：一旦推上去就等于公开，删掉也留在历史里。
+5. **不用 `git push -f`**：会覆盖别人的提交。push 被拒时先 `git pull --rebase`。
 
 ---
 
-## 七、常见问题
+## 四、常见问题
 
 | 现象 / 报错 | 原因 | 解决 |
 | --- | --- | --- |
@@ -228,23 +119,32 @@ PR 的好处：改动有记录、可以评论、可以整批回退。小改动�
 
 最后一条会生成一条「反向提交」，历史保留，安全。
 
+---
 
+## 五、什么时候用分支和 PR(额外内容)
 
-## 八、成员与分工
+| 情况 | 做法 |
+| --- | --- |
+| 只改自己 `members/你的文件夹/` 里的文件 | 直接推 `main`，不用想 |
+| 改 `README.md`、`templates/`、`.gitignore` 等公共文件 | 开分支 → PR → 自己合并，留个痕迹 |
+| 大重构、实验性方案、可能被推翻的代码 | 开分支 `exp/你的文件夹-日期`，成了再合 |
 
-| 文件夹 | 成员 | 负责模块 | 进度 |
-| --- | --- | --- | --- |
-| [Algorithm_A](members/Algorithm_A/) | 安 | 算法 | [logs](members/Algorithm_A/logs/) |
-| [ElectricBrazing_Z](members/ElectricBrazing_Z/) | 周 | 电硬 | [logs](members/ElectricBrazing_Z/logs/) |
-| [ElectronicSoftware_L](members/ElectronicSoftware_L/) | 李 | 电软 | [logs](members/ElectronicSoftware_L/logs/) |
-| [Machinery_H](members/Machinery_H/) | 黄 | 机械（H） | [logs](members/Machinery_H/logs/) |
-| [Machinery_Z](members/Machinery_Z/) | 周 | 机械（Z） | [logs](members/Machinery_Z/logs/) |
+```bash
+git checkout -b docs/readme-update
+# 改文件
+git add README.md
+git commit -m "docs: 补充成员分工表"
+git push -u origin docs/readme-update
+```
 
-> `README.md` 里可以补上自己的 GitHub 账号和更细的分工。
+然后在网页上点 **Compare & pull request** → 填标题 → **Create pull request** → **Merge pull request**。
+
+PR 的好处：改动有记录、可以评论、可以整批回退。小改动不必走，大改动值得走。
+
 
 ---
 
-## 十、GitHub 界面速览
+## 六、GitHub 界面速览
 
 | 位置 | 用途 |
 | --- | --- |
