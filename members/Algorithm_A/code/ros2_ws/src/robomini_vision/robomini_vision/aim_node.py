@@ -51,6 +51,7 @@ class AimNode(Node):
         super().__init__("robomini_aim")
 
         # ------------------------------------------------------------- params
+        ## 全是参数，暂时忽略()
         self.declare_parameter("side", "blue")
         self.declare_parameter("camera_topic", "/camera/image_raw")
         self.declare_parameter("camera_info_topic", "/camera/camera_info")
@@ -159,9 +160,12 @@ class AimNode(Node):
             f"debug={self.debug_enabled} save_dir={self.save_dir or '-'}")
 
     # ------------------------------------------------------------------ inputs
+    # 接受相机的本体参数，就是相机标定的参数
+
     def on_camera_info(self, msg: CameraInfo) -> None:
         self.k = list(msg.k)
 
+    # 接受云台的相关的yaw和pitch角
     def on_gimbal(self, msg: GimbalToVision) -> None:
         self.yaw_meas = float(msg.yaw)
         self.pitch_meas = float(msg.pitch)
@@ -176,6 +180,7 @@ class AimNode(Node):
             self.bullets += count
             self.last_bullet_count = count
 
+    # 接受裁判系统的小信息，实际上是没有这个东西的(只能靠视觉识别一个？)
     def on_hit(self, msg: RuneHit) -> None:
         if msg.valid:
             self.hits += 1
@@ -185,6 +190,7 @@ class AimNode(Node):
             if self.save_hits and self.last_annotated is not None and self.save_dir:
                 self._save_snapshot(self.last_annotated, prefix="hit")
 
+    # 实际没有的函数(只能用来调试这个)
     def on_rune_state(self, msg: RuneState) -> None:
         # Diagnostic only, never used for aiming.
         try:
@@ -197,6 +203,9 @@ class AimNode(Node):
         self.gt_point = geometry.target_point(self.side, float(msg.target_angles[idx]))
 
     # ------------------------------------------------------------------ helpers
+    # 将一个照片中的像素点投影到世界上，然后得到极角(就是相对于旋转中心的角)
+    # 这个就是借助摄像机现在的位姿和射线相交的位置，这里最主要的问题是旋转中心是怎么确定的
+    # 这个还加上了吸附功能，吸附在一个圆上
     def _track_theta(self, detection: Detection):
         if self.k is None:
             return None
@@ -210,6 +219,9 @@ class AimNode(Node):
             return None
         return snapped, theta, residual
 
+
+    # 这个用最小二乘法来进行了角速度的估算
+    # 我们尝试用EKF进行再次的尝试
     @staticmethod
     def _estimate_omega(samples):
         if len(samples) < 3:
@@ -225,6 +237,8 @@ class AimNode(Node):
         omega = float(np.sum(t0 * (unwrapped - unwrapped.mean())) / denom)
         return max(-4.0, min(4.0, omega))
 
+    # 用给滑动窗口(就是过去几秒和最新的来进行轨迹的更新，其实就是一个滑动窗口结合上面一个函数)，最后给出一个角速度
+    # 同时在这里进行了一次切换目标的检测(),我们也可以用这个方法在EKF中
     def _update_track(self, now: float, theta: float) -> float:
         """Update the target track, returns the estimated angular velocity."""
         if self.track is None:
@@ -249,6 +263,7 @@ class AimNode(Node):
         self.track["settle"] = min(self.track["settle"] + 1, 100)
         return self.track["omega"]
 
+    # 预测击打时候的角度
     def _predict_theta(self, now: float, theta: float) -> float:
         omega = self.track["omega"] if self.track else 0.0
         if abs(omega) < 0.05:
@@ -258,24 +273,25 @@ class AimNode(Node):
         return theta + omega * (t_flight + self.lead_latency)
 
     # ------------------------------------------------------------------ main loop
+    # 主循环()
     def on_image(self, msg: Image) -> None:
-        now = time.monotonic()
-        if now - self.last_process < self.process_period:
+        now = time.monotonic()                                                                  # 记录时间
+        if now - self.last_process < self.process_period:                                       # 这个就是两次的处理时间特别短的话，直接返回
             return
         self.last_process = now
         if self.k is None or not self.have_gimbal:
             return
         try:
-            bgr = self.bridge.imgmsg_to_cv2(msg, desired_encoding="bgr8")
+            bgr = self.bridge.imgmsg_to_cv2(msg, desired_encoding="bgr8")                       # 将节点传递的信息转成opencv的形式
         except Exception as exc:  # noqa: BLE001
             self.get_logger().warn(f"cv_bridge failed: {exc}", throttle_duration_sec=2.0)
             return
         self.frame_count += 1
         self.last_header = msg.header
 
-        detections = self.detector.detect(bgr)
+        detections = self.detector.detect(bgr)                                                   # 进行检测，返回有很多的东西
         pending: list[tuple[Detection, np.ndarray, float, float]] = []
-        for det in detections:
+        for det in detections:                                                                   # 通过处理获得极角等等元素，并且筛选出相应的情况(我们只打4格灯条的情况)
             if not det.is_pending or det.quality < self.min_quality:
                 continue
             solved = self._track_theta(det)
@@ -284,6 +300,7 @@ class AimNode(Node):
             point, theta, residual = solved
             pending.append((det, point, theta, residual))
 
+        # 后面就在决定追踪的物体和解包物体的位姿等信息，然后发布打击命令
         chosen = None
         if pending:
             if self.track is not None:
@@ -361,6 +378,7 @@ class AimNode(Node):
             self._debug(bgr, detections, chosen=None, now=now)
 
     # ------------------------------------------------------------------ output
+    # 发布命令，最然但是这个和小海龟不一样，这个发布一条就行了，但是海龟1s后就停止了
     def _publish_command(self, yaw: float, pitch: float, mode: int, now: float) -> None:
         yaw_vel = pitch_vel = 0.0
         if self.last_aim is not None:
@@ -391,6 +409,7 @@ class AimNode(Node):
             return
         self._publish_command(yaw, pitch, mode, now)
 
+    # 构建位姿的msg
     def _publish_pose(self, point: np.ndarray, theta: float, header) -> None:
         msg = PoseStamped()
         msg.header = header

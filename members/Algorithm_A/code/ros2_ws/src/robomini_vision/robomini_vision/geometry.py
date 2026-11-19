@@ -74,6 +74,7 @@ TEAMS = ("blue", "red")
 #: ``plane_y``: the five plate centres of this side share this y coordinate.
 #: ``normal`` : outward plate normal (towards this side's launcher).
 #: ``base_yaw``: world yaw of the launcher model (blue 0, red pi).
+# 事实上就是红蓝双方的发射台的配置有点不一样罢了()
 TEAM_GEOMETRY = {
     "blue": {
         "base": np.array([0.0, -2.07, 0.495], dtype=float),
@@ -93,13 +94,13 @@ TEAM_GEOMETRY = {
     },
 }
 
-
+# 是否存在相应的颜色方
 def check_side(side: str) -> str:
     if side not in TEAMS:
         raise ValueError(f"side must be one of {TEAMS}, got {side!r}")
     return side
 
-
+# 初始化配置
 def geometry(side: str) -> dict:
     return TEAM_GEOMETRY[check_side(side)]
 
@@ -108,22 +109,22 @@ def geometry(side: str) -> dict:
 # Small math helpers
 # ---------------------------------------------------------------------------
 
-
+# 防止跑飞的限制
 def wrap_pi(angle: float) -> float:
     """Wrap to (-pi, pi]."""
     return math.atan2(math.sin(angle), math.cos(angle))
 
-
+# 按照z轴旋转一定角度的旋转矩阵
 def rot_z(angle: float) -> np.ndarray:
     c, s = math.cos(angle), math.sin(angle)
     return np.array([[c, -s, 0.0], [s, c, 0.0], [0.0, 0.0, 1.0]])
 
-
+# 按照x轴旋转一定角度的旋转矩阵
 def rot_x(angle: float) -> np.ndarray:
     c, s = math.cos(angle), math.sin(angle)
     return np.array([[1.0, 0.0, 0.0], [0.0, c, -s], [0.0, s, c]])
 
-
+# 四元数转旋转矩阵
 def quat_to_matrix(q) -> np.ndarray:
     """``q`` is ``(w, x, y, z)`` (GimbalToVision order)."""
     w, x, y, z = (float(v) for v in q)
@@ -140,7 +141,7 @@ def quat_to_matrix(q) -> np.ndarray:
         dtype=float,
     )
 
-
+# 上面的逆
 def matrix_to_quat(r: np.ndarray):
     """Rotation matrix -> ``(w, x, y, z)``."""
     m = np.asarray(r, dtype=float)
@@ -177,13 +178,13 @@ def matrix_to_quat(r: np.ndarray):
 # Camera pose / ray casting
 # ---------------------------------------------------------------------------
 
-
+# 这个类单纯是相机的位姿的结构体
 @dataclass(frozen=True)
 class CameraPose:
     position: np.ndarray
     rotation: np.ndarray  # maps camera (ROS optical) vectors to world
 
-
+# 找到云台的俯仰轴的位姿，其实就是为了给相机头找位姿的
 def pitch_link_origin(side: str, yaw: float, pitch: float) -> np.ndarray:
     """World position of the pitch_link origin for the given joint angles.
 
@@ -197,7 +198,7 @@ def pitch_link_origin(side: str, yaw: float, pitch: float) -> np.ndarray:
     r_pl = rot_z(g["base_yaw"] + float(yaw)) @ rot_x(float(pitch))
     return pivot + r_pl @ (g["base"] - pivot)
 
-
+# 相机的位姿解算
 def camera_pose(side: str, yaw: float, pitch: float) -> CameraPose:
     """World pose of the camera from the measured yaw/pitch joint angles.
 
@@ -211,7 +212,7 @@ def camera_pose(side: str, yaw: float, pitch: float) -> CameraPose:
     position = pitch_link_origin(side, yaw, pitch) + r_pl @ CAMERA_OFFSET
     return CameraPose(position=position, rotation=r_pl @ R_ROS_IN_PL)
 
-
+# 给定两个像素点和相机内参，来解算这个点相对于相机坐标系的偏角的
 def pixel_ray(u: float, v: float, k) -> np.ndarray:
     """Unit ray in the ROS optical frame for pixel ``(u, v)``.
 
@@ -224,7 +225,7 @@ def pixel_ray(u: float, v: float, k) -> np.ndarray:
     ray = np.array([(float(u) - cx) / fx, (float(v) - cy) / fy, 1.0])
     return ray / np.linalg.norm(ray)
 
-
+# 求给定相机位姿和这个点的角度，求和物理世界中面的那个角重合
 def ray_plane(cam: CameraPose, direction: np.ndarray, plane_y: float,
               min_t: float = 0.2, max_t: float = 12.0):
     """Intersect a world ray with the horizontal plane ``y = plane_y``."""
@@ -235,14 +236,14 @@ def ray_plane(cam: CameraPose, direction: np.ndarray, plane_y: float,
         return None
     return cam.position + t * direction
 
-
+# 综合函数
 def pixel_to_plane(u: float, v: float, k, side: str, yaw: float, pitch: float):
     """Pixel -> world point on this side's rune plane (no prior snap)."""
     cam = camera_pose(side, yaw, pitch)
     direction = cam.rotation @ pixel_ray(u, v, k)
     return ray_plane(cam, direction, geometry(side)["plane_y"])
 
-
+# 综合函数的逆
 def world_to_pixel(point, k, side: str, yaw: float, pitch: float):
     """Project a world point into the camera; returns (u, v, depth) or None."""
     cam = camera_pose(side, yaw, pitch)
@@ -259,7 +260,7 @@ def world_to_pixel(point, k, side: str, yaw: float, pitch: float):
 # Rune target geometry
 # ---------------------------------------------------------------------------
 
-
+# 给定一个极角，求这个能量机关在现实中的位置
 def target_point(side: str, theta: float) -> np.ndarray:
     """Plate centre on the rune circle at polar angle ``theta`` (X-Z plane)."""
     g = geometry(side)
@@ -271,13 +272,13 @@ def target_point(side: str, theta: float) -> np.ndarray:
         ]
     )
 
-
+# 上面的逆
 def point_to_theta(side: str, point: np.ndarray) -> float:
     g = geometry(side)
     return math.atan2(float(point[2]) - g["axis"][2],
                       float(point[0]) - g["axis"][0])
 
-
+# 自动吸附(世界函数)
 def snap_to_rune(side: str, point: np.ndarray):
     """Snap a plane intersection to the known rune circle.
 
@@ -289,7 +290,7 @@ def snap_to_rune(side: str, point: np.ndarray):
     snapped = target_point(side, theta)
     return snapped, theta, float(np.linalg.norm(np.asarray(point) - snapped))
 
-
+# 结算目标装甲板的位姿(这个在整个工程中作用不大)
 def target_quaternion(side: str, theta: float):
     """Orientation of the plate frame: x = radial, y = tangent, z = normal."""
     g = geometry(side)
@@ -305,14 +306,14 @@ def target_quaternion(side: str, theta: float):
 # Ballistics / gimbal aim
 # ---------------------------------------------------------------------------
 
-
+# 用于计算yaw
 def yaw_from_delta(side: str, dx: float, dy: float) -> float:
     """Joint yaw for a horizontal displacement, 0 = this side's forward."""
     g = geometry(side)
     fx, fy = float(g["forward"][0]), float(g["forward"][1])
     return math.atan2(fx * dy - fy * dx, fx * dx + fy * dy)
 
-
+# 用服空气阻力的模型去拟合一个pitch角(按照物理学，这个本来是不唯一的角)
 def solve_pitch(horizontal: float, dz: float, speed: float) -> float:
     """Launch pitch for a projectile hitting ``(horizontal, dz)``.
 
@@ -344,13 +345,13 @@ def solve_pitch(horizontal: float, dz: float, speed: float) -> float:
             hi = mid
     return 0.5 * (lo + hi)
 
-
+# 计算枪口位置(角度和摄像头相同)
 def muzzle_position(side: str, yaw: float, pitch: float) -> np.ndarray:
     g = geometry(side)
     r_pl = rot_z(g["base_yaw"] + float(yaw)) @ rot_x(float(pitch))
     return pitch_link_origin(side, yaw, pitch) + r_pl @ MUZZLE_OFFSET
 
-
+# 瞄准函数
 def aim_at(side: str, point, speed: float = BALL_SPEED_DEFAULT,
            yaw0: float = 0.0, pitch0: float = 0.0, iterations: int = 6):
     """Joint ``(yaw, pitch)`` that puts a ``speed`` projectile through ``point``.
@@ -370,7 +371,7 @@ def aim_at(side: str, point, speed: float = BALL_SPEED_DEFAULT,
     pitch = max(PITCH_MIN, min(PITCH_MAX, pitch))
     return yaw, pitch
 
-
+# 计算飞行时间函数
 def flight_time(side: str, point, speed: float = BALL_SPEED_DEFAULT) -> float:
     """Approximate time of flight from the muzzle to ``point``."""
     point = np.asarray(point, dtype=float)

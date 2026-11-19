@@ -43,6 +43,7 @@ TEAM_HSV = {
 }
 
 
+# 这个就是Detection的返回变量列表
 @dataclass(frozen=True)
 class Detection:
     state: str          # "pending" | "active"
@@ -98,7 +99,7 @@ class RuneDetector:
     # ------------------------------------------------------------------
     # Mask / bars
     # ------------------------------------------------------------------
-    ## 生成了一个mask图
+    ## 生成了一个mask图，就是将相应的颜色提取出来了
     def mask(self, bgr: np.ndarray) -> np.ndarray:
         hsv = cv2.cvtColor(bgr, cv2.COLOR_BGR2HSV)
         out = None
@@ -175,6 +176,7 @@ class RuneDetector:
     # ------------------------------------------------------------------
     # Public API
     # ------------------------------------------------------------------
+    # 直接调用的总体的检测的列表()
     def detect(self, bgr: np.ndarray) -> List[Detection]:
         """Return pending/active detections, largest first."""
         mask, bars = self.bars(bgr)
@@ -228,6 +230,7 @@ class RuneDetector:
         return detections
 
 
+# 画框的函数
 def draw_detections(image: np.ndarray, detections: Sequence[Detection]) -> np.ndarray:
     """Draw circles/labels for pending (green) and active (orange) plates."""
     out = image.copy()
