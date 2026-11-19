@@ -1,0 +1,31 @@
+robomini_aim:
+  ros__parameters:
+    # ---- geometry / team ----
+    side: blue
+    ball_speed: 12.0
+
+    # ---- aiming / firing ----
+    fire: true
+    fire_tolerance: 0.022        # rad; 0.022 rad ~= 1.26 deg
+    min_quality: 0.45
+    min_fire_bars: 4             # only fire on a complete four-bar pending plate
+    process_rate: 20.0           # Hz, image processing rate (camera is 60 Hz)
+    lead_latency: 0.06           # s, extra lead for servo/image latency
+    search_timeout: 0.5          # s without pending before looking at hub centre
+    track_memory: 0.35           # s of dead reckoning through a detection gap
+    max_snap_error: 0.05         # m, reject non-rune / back-face intersections
+
+    # ---- detector tuning ----
+    cluster_eps: 85.0            # px, single-link distance between bars of a plate
+    min_bar_area: 45
+    min_green: 25.0               # reject pure-colour field lines (G channel)
+
+    # ---- debug / recording ----
+    debug_image: true
+    debug_rate: 10.0
+    show_window: false
+    save_dir: ""                 # e.g. /home/.../members/Algorithm_A/code/Pic/vision_debug
+    save_every: 2.0
+    save_hits: false             # save an extra snapshot on every valid hit
+    compare_ground_truth: false  # diagnostic only; never used for control
+    monitor_hits: true
