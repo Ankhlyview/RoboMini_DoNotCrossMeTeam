@@ -1,0 +1,14 @@
+# 编译产物
+Objects/
+Listings/
+DebugConfig/
+*.uvguix.*
+*.uvoptx
+*.map
+*.axf
+*.o
+*.d
+*.crf
+*.lst
+*.dep
+*.bak
