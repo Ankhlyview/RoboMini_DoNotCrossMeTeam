@@ -206,6 +206,7 @@ class AimNode(Node):
     # 将一个照片中的像素点投影到世界上，然后得到极角(就是相对于旋转中心的角)
     # 这个就是借助摄像机现在的位姿和射线相交的位置，这里最主要的问题是旋转中心是怎么确定的
     # 这个还加上了吸附功能，吸附在一个圆上
+    # 这玩意也是个合集
     def _track_theta(self, detection: Detection):
         if self.k is None:
             return None
