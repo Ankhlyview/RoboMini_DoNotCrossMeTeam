@@ -27,7 +27,7 @@ class Detection:
     def is_pending(self) -> bool:
         return self.state == "pending"
     
-class RunDetect:
+class RuneDetect:
 
     # 初始化相关参数()
     def __init__(self,side:str = "blue",hsv_low:Sequence[int] | None = None,

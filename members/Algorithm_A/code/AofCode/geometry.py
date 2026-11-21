@@ -220,16 +220,20 @@ def target_quaternion(side: str, theta: float):
     rotation = np.column_stack([x_axis, y_axis, z_axis])
     return matrix_to_quat(rotation)
 
-
-"""-------------------------------------------------------------------"""
-# 用于计算yaw
+# 这个yaw和pitch的计算都是基于初始位置的
+# 用于计算yaw,有点问题()
+"""注意下,实际上我们每次拿到的是yaw和pitch的变化值"""
 def yaw_from_delta(side: str, dx: float, dy: float) -> float:
     g = geometry(side)
     fx, fy = float(g["forward"][0]), float(g["forward"][1])
     return math.atan2(fx * dy - fy * dx, fx * dx + fy * dy)
 
 # 用服空气阻力的模型去拟合一个pitch角(按照物理学，这个本来是不唯一的角)
+"""这个有可以直接计算的方式，就是看起来不是那么好看就是了"""
+"""实际上这个还要考虑空气阻力对于弹丸的影响()"""
+"""实际情况我决算不出来(),等有空摇人吧"""
 def solve_pitch(horizontal: float, dz: float, speed: float) -> float:
+    # 依旧判断滚木
     if speed <= 0.0:
         raise ValueError("speed must be positive")
     if horizontal < 1e-6:
@@ -254,7 +258,7 @@ def solve_pitch(horizontal: float, dz: float, speed: float) -> float:
             hi = mid
     return 0.5 * (lo + hi)
 
-# 计算枪口位置(角度和摄像头相同)
+# 计算枪口位置(角度和摄像头相同)(这个是真位置)
 def muzzle_position(side: str, yaw: float, pitch: float) -> np.ndarray:
     g = geometry(side)
     r_pl = rot_z(g["base_yaw"] + float(yaw)) @ rot_x(float(pitch))
@@ -265,11 +269,12 @@ def aim_at(side: str, point, speed: float = ball_speed,
            yaw0: float = 0.0, pitch0: float = 0.0, iterations: int = 6):
     point = np.asarray(point, dtype=float)
     yaw, pitch = float(yaw0), float(pitch0)
+    # 上下都不理解，但是知道在干什么()
     for _ in range(max(1, iterations)):
         muzzle = muzzle_position(side, yaw, pitch)
         dx, dy, dz = point - muzzle
         yaw = yaw_from_delta(side, dx, dy)
-        horizontal = math.hypot(dx, dy)
+        horizontal = math.hypot(dx, dy)    # 求距离的函数
         pitch = solve_pitch(horizontal, dz, speed)
     yaw = max(-yaw_limit, min(yaw_limit, yaw))
     pitch = max(pitch_min_limit, min(pitch_max_limit, pitch))
@@ -281,4 +286,4 @@ def flight_time(side: str, point, speed: float = ball_speed) -> float:
     g = geometry(side)
     muzzle = g["base"] + muzzle_offset
     horizontal = math.hypot(point[0] - muzzle[0], point[1] - muzzle[1])
-    return max(0.0, horizontal / max(speed, 1e-6))
+    return max(0.0, horizontal / max(speed, 1e-6))# 依旧比较滚木()
